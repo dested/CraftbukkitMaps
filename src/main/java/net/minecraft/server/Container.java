@@ -138,24 +138,24 @@ public abstract class Container {
 
 					// Craftbukkit start
 					org.bukkit.inventory.ItemStack t1 = null, t2 = null;
-					if (itemstack2 != null)
-						t1 = new org.bukkit.inventory.ItemStack(itemstack2.id,
-								itemstack2.count, (short) itemstack2.damage,
-								(byte) itemstack2.b);
 					if (itemstack3 != null)
-						t2 = new org.bukkit.inventory.ItemStack(itemstack3.id,
+						t1 = new org.bukkit.inventory.ItemStack(itemstack3.id,
 								itemstack3.count, (short) itemstack3.damage,
 								(byte) itemstack3.b);
+					if (itemstack2 != null)
+						t2 = new org.bukkit.inventory.ItemStack(itemstack2.id,
+								itemstack2.count, (short) itemstack2.damage,
+								(byte) itemstack2.b);
 
 					Inventory cont = null;
-					TransactionType leftType=null;
-					TransactionType rightType = TransactionType.Hand;
+					TransactionType leftType = TransactionType.Hand;
+					TransactionType rightType = null;
 
 					if (this instanceof ContainerChest) {
-						leftType = TransactionType.Chest;
+						rightType = TransactionType.Chest;
 						cont = new CraftInventory(((ContainerChest) this).a);
 					} else if (this instanceof ContainerPlayer) {
-						leftType = TransactionType.Inventory;
+						rightType = TransactionType.Inventory;
 						cont = new CraftInventory(((ContainerPlayer) this).b);
 					} else {
 						try {
@@ -176,11 +176,22 @@ public abstract class Container {
 											Type.INVENTORY_TRANSACTION,
 											leftType, rightType, t1, t2, cont));
 
+					if (evt.getLeft() == null)
+						itemstack3 = null;
+					if (evt.getRight() == null)
+						itemstack2 = null;
+
 					if (evt.isCancled()) {
 						itemstack = null;
 						itemstack2 = null;
 						itemstack3 = null;
 					}
+
+					if (itemstack2 != null) {
+						itemstack = itemstack2.j();
+					} else
+						itemstack = null;
+
 					// Craftbukkit end
 
 					int k;
