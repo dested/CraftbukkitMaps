@@ -51,7 +51,7 @@ public class World implements IBlockAccess {
     public int n = 0;
     public boolean o = false;
     private long H = System.currentTimeMillis();
-    protected int p = 40;
+    private int p = 40;
     public int spawnMonsters;
     public Random random = new Random();
     public boolean s = false;
