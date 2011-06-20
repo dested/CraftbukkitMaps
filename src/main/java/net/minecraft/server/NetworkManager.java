@@ -1,0 +1,282 @@
+package net.minecraft.server;
+
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.io.IOException; // CraftBukkit
+
+public class NetworkManager {
+
+    public static final Object a = new Object();
+    public static int b;
+    public static int c;
+    private Object g = new Object();
+    public Socket socket; // CraftBukkit - private -> public
+    private final SocketAddress i;
+    private DataInputStream input;
+    private DataOutputStream output;
+    private boolean l = true;
+    private List m = Collections.synchronizedList(new ArrayList());
+    private List n = Collections.synchronizedList(new ArrayList());
+    private List o = Collections.synchronizedList(new ArrayList());
+    private NetHandler p;
+    private boolean q = false;
+    private Thread r;
+    private Thread s;
+    private boolean t = false;
+    private String u = "";
+    private Object[] v;
+    private int w = 0;
+    private int x = 0;
+    public static int[] d = new int[256];
+    public static int[] e = new int[256];
+    public int f = 0;
+    private int y = 50;
+
+    public NetworkManager(Socket socket, String s, NetHandler nethandler) {
+        this.socket = socket;
+        this.i = socket.getRemoteSocketAddress();
+        this.p = nethandler;
+
+        // CraftBukkit start - IPv6 stack in Java on BSD/OSX doesn't support setTrafficClass
+        try {
+            socket.setTrafficClass(24);
+        } catch (SocketException e) {}
+        // CraftBukkit end
+
+        try {
+            // CraftBukkit start - cant compile these outside the try
+            socket.setSoTimeout(30000);
+            this.input = new DataInputStream(socket.getInputStream());
+            this.output = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream(), 5120));
+            // CraftBukkit end
+        } catch (IOException socketexception) {
+            System.err.println(socketexception.getMessage());
+        }
+
+        this.s = new NetworkReaderThread(this, s + " read thread");
+        this.r = new NetworkWriterThread(this, s + " write thread");
+        this.s.start();
+        this.r.start();
+    }
+
+    public void a(NetHandler nethandler) {
+        this.p = nethandler;
+    }
+
+    public void a(Packet packet) {
+        if (!this.q) {
+            Object object = this.g;
+
+            synchronized (this.g) {
+                this.x += packet.a() + 1;
+                if (packet.k) {
+                    this.o.add(packet);
+                } else {
+                    this.n.add(packet);
+                }
+            }
+        }
+    }
+
+    private boolean f() {
+        boolean flag = false;
+
+        try {
+            Object object;
+            Packet packet;
+            int i;
+            int[] aint;
+
+            if (!this.n.isEmpty() && (this.f == 0 || System.currentTimeMillis() - ((Packet) this.n.get(0)).timestamp >= (long) this.f)) {
+                object = this.g;
+                synchronized (this.g) {
+                    packet = (Packet) this.n.remove(0);
+                    this.x -= packet.a() + 1;
+                }
+
+                Packet.a(packet, this.output);
+                aint = e;
+                i = packet.b();
+                aint[i] += packet.a() + 1;
+                flag = true;
+            }
+
+            // CraftBukkit - don't allow low priority packet to be sent unless it was placed in the queue before the first packet on the high priority queue
+            if ((flag || this.y-- <= 0) && !this.o.isEmpty() && (this.n.isEmpty() || ((Packet) this.n.get(0)).timestamp > ((Packet) this.o.get(0)).timestamp)) {
+                object = this.g;
+                synchronized (this.g) {
+                    packet = (Packet) this.o.remove(0);
+                    this.x -= packet.a() + 1;
+                }
+
+                Packet.a(packet, this.output);
+                aint = e;
+                i = packet.b();
+                aint[i] += packet.a() + 1;
+                this.y = 0;
+                flag = true;
+            }
+
+            return flag;
+        } catch (Exception exception) {
+            if (!this.t) {
+                this.a(exception);
+            }
+
+            return false;
+        }
+    }
+
+    public void a() {
+        this.s.interrupt();
+        this.r.interrupt();
+    }
+
+    private boolean g() {
+        boolean flag = false;
+
+        try {
+            Packet packet = Packet.a(this.input, this.p.c());
+
+            if (packet != null) {
+                int[] aint = d;
+                int i = packet.b();
+
+                aint[i] += packet.a() + 1;
+                this.m.add(packet);
+                flag = true;
+            } else {
+                this.a("disconnect.endOfStream", new Object[0]);
+            }
+
+            return flag;
+        } catch (Exception exception) {
+            if (!this.t) {
+                this.a(exception);
+            }
+
+            return false;
+        }
+    }
+
+    private void a(Exception exception) {
+        exception.printStackTrace();
+        this.a("disconnect.genericReason", new Object[] { "Internal exception: " + exception.toString()});
+    }
+
+    public void a(String s, Object... aobject) {
+        if (this.l) {
+            this.t = true;
+            this.u = s;
+            this.v = aobject;
+            (new NetworkMasterThread(this)).start();
+            this.l = false;
+
+            try {
+                this.input.close();
+                this.input = null;
+            } catch (Throwable throwable) {
+                ;
+            }
+
+            try {
+                this.output.close();
+                this.output = null;
+            } catch (Throwable throwable1) {
+                ;
+            }
+
+            try {
+                this.socket.close();
+                this.socket = null;
+            } catch (Throwable throwable2) {
+                ;
+            }
+        }
+    }
+
+    public void b() {
+        if (this.x > 1048576) {
+            this.a("disconnect.overflow", new Object[0]);
+        }
+
+        if (this.m.isEmpty()) {
+            if (this.w++ == 1200) {
+                this.a("disconnect.timeout", new Object[0]);
+            }
+        } else {
+            this.w = 0;
+        }
+
+        int i = 100;
+
+        while (!this.m.isEmpty() && i-- >= 0) {
+            Packet packet = (Packet) this.m.remove(0);
+
+            packet.a(this.p);
+        }
+
+        this.a();
+        if (this.t && this.m.isEmpty()) {
+            this.p.a(this.u, this.v);
+        }
+    }
+
+    public SocketAddress getSocketAddress() {
+        return this.i;
+    }
+
+    public void d() {
+        this.a();
+        this.q = true;
+        this.s.interrupt();
+        (new ThreadMonitorConnection(this)).start();
+    }
+
+    public int e() {
+        return this.o.size();
+    }
+
+    static boolean a(NetworkManager networkmanager) {
+        return networkmanager.l;
+    }
+
+    static boolean b(NetworkManager networkmanager) {
+        return networkmanager.q;
+    }
+
+    static boolean c(NetworkManager networkmanager) {
+        return networkmanager.g();
+    }
+
+    static boolean d(NetworkManager networkmanager) {
+        return networkmanager.f();
+    }
+
+    static DataOutputStream e(NetworkManager networkmanager) {
+        return networkmanager.output;
+    }
+
+    static boolean f(NetworkManager networkmanager) {
+        return networkmanager.t;
+    }
+
+    static void a(NetworkManager networkmanager, Exception exception) {
+        networkmanager.a(exception);
+    }
+
+    static Thread g(NetworkManager networkmanager) {
+        return networkmanager.s;
+    }
+
+    static Thread h(NetworkManager networkmanager) {
+        return networkmanager.r;
+    }
+}

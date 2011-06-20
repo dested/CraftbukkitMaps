@@ -1,0 +1,38 @@
+2011-06-19 16:48:25 [INFO] Starting minecraft server version Beta 1.6.6
+2011-06-19 16:48:25 [INFO] Loading properties
+2011-06-19 16:48:25 [WARNING] server.properties does not exist
+2011-06-19 16:48:25 [INFO] Generating new properties file
+2011-06-19 16:48:26 [INFO] Starting Minecraft server on *:25565
+2011-06-19 16:48:26 [WARNING] **** FAILED TO BIND TO PORT!
+2011-06-19 16:48:26 [WARNING] The exception was: java.net.BindException: Address already in use: JVM_Bind
+2011-06-19 16:48:26 [WARNING] Perhaps a server is already running on that port?
+2011-06-19 16:48:57 [INFO] Starting minecraft server version Beta 1.6.6
+2011-06-19 16:48:57 [INFO] Loading properties
+2011-06-19 16:48:57 [INFO] Starting Minecraft server on *:25565
+2011-06-19 16:48:57 [WARNING] **** FAILED TO BIND TO PORT!
+2011-06-19 16:48:57 [WARNING] The exception was: java.net.BindException: Address already in use: JVM_Bind
+2011-06-19 16:48:57 [WARNING] Perhaps a server is already running on that port?
+2011-06-19 16:49:12 [INFO] Starting minecraft server version Beta 1.6.6
+2011-06-19 16:49:12 [INFO] Loading properties
+2011-06-19 16:49:12 [INFO] Starting Minecraft server on *:25565
+2011-06-19 16:49:12 [WARNING] **** FAILED TO BIND TO PORT!
+2011-06-19 16:49:12 [WARNING] The exception was: java.net.BindException: Address already in use: JVM_Bind
+2011-06-19 16:49:12 [WARNING] Perhaps a server is already running on that port?
+2011-06-19 16:49:27 [INFO] Starting minecraft server version Beta 1.6.6
+2011-06-19 16:49:27 [INFO] Loading properties
+2011-06-19 16:49:27 [INFO] Starting Minecraft server on *:25565
+2011-06-19 16:49:27 [INFO] This server is running Craftbukkit version null (MC: 1.6.6)
+2011-06-19 16:49:27 [WARNING] Failed to load ban list: java.io.FileNotFoundException: banned-players.txt (The system cannot find the file specified)
+2011-06-19 16:49:27 [WARNING] Failed to load ip ban list: java.io.FileNotFoundException: banned-ips.txt (The system cannot find the file specified)
+2011-06-19 16:49:27 [WARNING] Failed to load ops: java.io.FileNotFoundException: ops.txt (The system cannot find the file specified)
+2011-06-19 16:49:27 [WARNING] Failed to load white-list: java.io.FileNotFoundException: white-list.txt (The system cannot find the file specified)
+2011-06-19 16:49:27 [INFO] Preparing level "world"
+2011-06-19 16:49:28 [INFO] Preparing start region for level 0 (Seed: 3737111238719678570)
+2011-06-19 16:49:29 [INFO] Preparing spawn area: 12%
+2011-06-19 16:49:30 [INFO] Preparing spawn area: 20%
+2011-06-19 16:49:31 [INFO] Preparing spawn area: 28%
+2011-06-19 16:49:32 [INFO] Preparing spawn area: 40%
+2011-06-19 16:49:33 [INFO] Preparing spawn area: 48%
+2011-06-19 16:49:34 [INFO] Preparing spawn area: 56%
+2011-06-19 16:49:35 [INFO] Preparing spawn area: 65%
+2011-06-19 16:49:36 [INFO] Preparing spawn area: 69%
